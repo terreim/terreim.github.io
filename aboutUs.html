@@ -1,0 +1,741 @@
+
+<!-- DISCLAIMER: This code is very underoptimized, with a lot of redundancies - pardon us, we are still getting the hang of coding and stuffs afterall-->
+<!-- This code is made possible with the help of Youtuber Hyperplexed, kudos to him-->
+<!-- Known bug: When you click the box containing "Back", the menu navigation broke. You will have to press it again then press the text-->
+
+
+
+<!DOCTYPE html>
+<head>
+
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+  rel="stylesheet">
+
+    <style>
+    :root {
+        --background: linear-gradient(180deg, #ffffff 10%, #f4c2c2 100%);
+        --border-color: rgba(255, 255, 255, 0.75);
+        --highlight-color: rgb(126, 87, 194);
+    }
+
+    body {
+        background-color: var(--background-color);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100vw;
+        margin: 0px;
+        overflow: hidden; 
+    }
+    
+
+    main {
+        flex-grow: 1;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        margin: 0px;
+        background: linear-gradient(#ffffff, #f4c2c2);
+        opacity: 100%;
+        position: relative;
+        z-index: 3;
+        transition: transform 500ms cubic-bezier(0.13, 0.52, 0.38, 1);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    h1, h2, h3, a, p {
+        font-family: "Nunito Sans", sans-serif;
+	      -webkit-font-smoothing: antialiased;
+        font-weight: 350;
+        color: #130f26;
+        margin: 0px;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: var(--highlight-color);
+    }
+
+    /* Top container */
+
+    #nav-container {
+        display: flex;
+        width: 100%;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-section {
+        padding: 1.5rem 2rem;
+        display: flex;
+        gap: 1rem;
+        border-left: 1px solid var(--border-color);
+        align-items: center;
+        justify-content: center;
+    }
+
+    #nav-announcement-section {
+        display: flex;
+        flex-basis: calc(100% * (2 / 3));
+        z-index: 2;
+    }
+
+    #nav-contact-section {
+        flex-grow: 1;
+    }
+
+    #nav-menu-section {
+      flex-grow: 1;
+    }
+
+    #nav-logo-section {
+        flex-basis: calc(100% / 3);
+        justify-content: flex-start;
+    }
+
+    #nav-logo-section > a > i {
+        font-size: 2.5rem;
+    }
+
+    #nav-annlink-section {
+        flex-basis: 50%;
+        gap: 6rem; 
+    }
+
+    #nav-contact-section {
+        gap: 4rem;
+    }
+
+    /* Navigation Button */
+
+    #nav-toggle {
+      
+        height: 3.5rem;
+        width: 6rem;
+        position: fixed;
+        z-index: 3;
+        top: 2.7%;
+        right: -1.3%;
+        cursor: pointer;
+
+        /* padding defines the width of the inner gradient background (2) */
+        padding: .25em;
+
+        /* border-width defines the width the outer gradient background (3) */
+        border: .25em solid transparent;
+        border-radius: 5rem;
+        
+        background: 
+          /* Inner-most gradient */
+          linear-gradient(to bottom, #ffffff, #ffffff) content-box,
+          /* Inner gradient */
+          linear-gradient(to right, #f4c2c2, #ffddf4) padding-box,
+          /* Outer gradient */
+          linear-gradient(to right, #ffddf4, #f4c2c2) border-box;
+        transform: translateX(-50%);
+        transition: transform, background-color;
+        transition-timing-function: ease;
+        transition-duration: 300ms;
+      }
+
+    #nav-toggle > a {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(0.5);
+        color: #130f26;
+        font-size: 2em;
+        opacity: 0%;
+        transition: transform, opacity;
+        transition-timing-function: ease;
+        transition-duration: 300ms;
+    }
+
+    #nav-toggle:hover {
+        transform: translateX(-50%) scale(1.2);
+    }
+
+    #nav-toggle:active {
+        transform: translateX(-50%) scale(1);
+    }
+
+    body:not([data-nav="true"]) > #nav-toggle:hover > .open {
+        opacity: 100%;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    body[data-nav="true"] > #nav-toggle > .close {
+        opacity: 100%;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    body[data-nav="true"]> main,
+    body[data-nav="true"]> #cover-main {
+        transform: translateX(18%);
+    }
+
+      /* Main nav */
+    #menu-nav {
+        height: 100vh;
+        width: 100vw;
+        position: absolute;
+        left: 0px;
+        bottom: 0px;
+        z-index: 2;
+        overflow-y: hidden;
+    }
+
+    #nav-links {
+        opacity: 80%;
+        gap: 1px clamp(0.5rem, 1vw, 1rem);
+        padding: 8.5rem clamp(1rem, 2vw, 2rem);
+        transform: translateX(-45%) scale(0.7);
+        transition: transform 500ms cubic-bezier(0.15, 0.5, 0.35, 1);
+    }
+
+    body[data-nav="true"] > #menu-nav > #nav-links {
+        transform: translateX(-1%) scale(1);
+    }
+
+    #nav-links > .nav-links {
+        text-decoration: none;
+    }
+
+    #nav-links > .nav-links > .nav-links-label {
+        color: #130f26;
+        font-size: 1.15rem;
+        margin: 0 rem;
+        text-transform: uppercase;
+    }
+
+    #nav-links > .nav-links > .nav-links-image {
+        width: max(15vw, 100px);
+        aspect-ratio: 3.75/1;
+        border-radius: 0.65rem;
+        object-fit: cover;
+    } 
+      /* End of main nav */
+
+      /* Sub nav */
+      /*PS: For some reasons, if I click on the box containing this text instead of the text itself, everything broke.*/
+      /*PSS: By the way, I reverse-engineered this from the code above, so it is unoptimized. Please pardon me */
+
+    #sub-nav {
+        float: right;
+        height: 100vh;
+        width: 100%;
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        z-index: 2;
+        overflow-y: hidden;
+    }
+    #sub-nav-links {
+        opacity: 80%;
+        float: right;
+        gap: clamp(1rem, 2vw, 3rem);
+        padding: 9rem clamp(2rem, 3vw, 2rem);
+        transform: translateY(0%) scale(0.5);
+        transition: transform 500ms cubic-bezier(0.15, 0.75, 0.55, 1);
+    }
+
+    body[data-subnav="true"] > #menu-nav > #sub-nav-links {
+        transform: translateY(-100%) scale(1);
+    }    
+
+    body[data-subnav="true"]> main,
+    body[data-subnav="true"]> #cover-main {
+        transform: translateX(-19%);
+    }
+
+    body[data-subnav="true"] > #nav-toggle > .return {
+        opacity: 100%;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+
+    body[data-subnav="true"][data-nav="false"] > #nav-toggle > .close,
+    body[data-subnav="true"][data-nav="false"] > #nav-toggle > .open {
+        opacity: 0%;
+    }
+
+    #menu-nav > #sub-nav-links > .sub-nav-links {
+        text-decoration: none;
+    }
+
+    #menu-nav > #sub-nav-links > .sub-nav-links > .sub-nav-links-label {
+        color: #130f26;
+        font-size: 1.15rem;
+        margin: 5 rem;
+        text-transform: uppercase;
+    }
+
+    #menu-nav > #sub-nav-links > .sub-nav-links > .sub-nav-links-image {
+        width: max(15vw, 120px);
+        aspect-ratio: 3/1;
+        border-radius: 0.75rem;
+        object-fit: cover;
+    } 
+    /* End of sub-nav */
+
+    /* Articles section */
+
+    main > article {
+        height: 100%;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: 2fr 1fr;
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        transition: transform 400ms ease;  
+    }
+
+    main > article[data-status="inactive"] {
+        transform: translateX(-100%);
+        transition: none;
+    }
+
+    main > article[data-status="active"] {
+        transform: translateX(0%);
+    }
+
+    main > article[data-status="before"] {
+        transform: translateX(-100%);
+    }
+
+    main > article[data-status="after"] {
+        transform: translateX(100%);
+    }
+
+    main > article[data-status="becoming-active-from-before"] {
+        transform: translateX(-100%);
+        transition: none;
+    }
+
+    main > article[data-status="becoming-active-from-after"] {
+        transform: translateX(100%);
+        transition: none;
+    }
+
+    main > article > .article-section {
+        height: 100%;
+        display: flex;
+    }
+
+    main > article > .article-description-section,
+    main > article > .article-nav-section {
+        border-left: 1px solid var(--border-color);
+    }
+
+    main > article > .article-title-section,
+    main > article > .article-nav-section {
+        border-top: 1px solid var(--border-color);
+    }
+
+    main > article:nth-child(1) > .article-image-section {
+        background-image: url("img/lux1997.jpg");
+    }
+
+    main > article:nth-child(2) > .article-image-section {
+        background-image: url("img/lux1999.jpg");
+    }
+
+    main > article:nth-child(3) > .article-image-section {
+        background-image: url("img/lux2001.jpg");
+    }
+
+    main > article:nth-child(4) > .article-image-section {
+        background-image: url("img/lux2006.jpg");
+    }
+
+    main > article:nth-child(5) > .article-image-section {
+        background-image: url("img/lux2010.jpg");
+    }
+
+    main > article:nth-child(6) > .article-image-section {
+        background-image: url("img/lux2017.jpg");
+    }
+
+    main > article:nth-child(7) > .article-image-section {
+        background-image: url("img/lux2020.jpg");
+    }
+
+    main > article > .article-image-section {
+        background-position: center;
+        background-size: cover;
+    }
+
+    main > article > .article-description-section {
+        flex-direction: column;
+        justify-content: flex;
+        padding: 4rem; 
+    }
+
+    main > article > .article-description-section > p {
+        color: #130f26;
+        font-size: 1.2em;
+    }
+
+    main > article > .article-description-section > p  > a:hover {
+        text-decoration: underline;
+    }
+
+    main > article > .article-title-section {
+        align-items: center; 
+        justify-content: space-between;
+        padding: 2rem 3rem;
+    }
+
+    main > article > .article-title-section * {
+        color: #130f26;
+    }
+
+    main > article > .article-title-section > h2 {
+        flex-basis: 50%;
+        font-family: "Nunito Sans", sans-serif;
+        font-size: 2.5rem;
+        line-height: 3rem;
+        margin: 0px;
+        text-transform: uppercase;
+    }
+
+    main > article > .article-title-section > i {
+        color: #130f26;
+        flex-basis: left 0%;
+        font-family: "Nunito Sans", sans-serif;
+        font-size: 1.75rem;
+        text-transform: uppercase;
+    }
+
+    main > article > .article-title-section > i > #i1 {
+        color: #007080;
+        flex-direction: bottom 0%;
+        font-family: "Nunito Sans", sans-serif;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+    }
+
+    main > article > .article-nav-section > .article-nav-button {
+        background-color: transparent;
+        flex-grow: 1;
+        border: none;
+        outline: none;
+        color: #130f26;
+        font-size: 3rem;
+        cursor: pointer;
+    }
+
+    main > article > .article-nav-section > .article-nav-button:hover {
+        background-color: #ffddf4;
+    }
+
+    main > article > .article-nav-section > .article-nav-button:nth-child(2) {
+        border-left: 1px solid var(--border-color);
+    }
+    </style>
+    
+</head>
+<body data-nav="false">
+
+    <!-- Navigation -->
+    <nav id="menu-nav">
+        <div id="nav-links">
+            <a class="nav-links" href="index.html">
+                <h2 class="nav-links-label rubik-font">Home</h2>
+                <img class="nav-links-image" src="index-images/main-nav/home.png">
+            </a>
+            <a class="nav-links" href="shop.html">
+                <h2 class="nav-links-label rubik-font">Shop</h2>
+                <img class="nav-links-image" src="index-images/main-nav/genres.png">
+            </a>
+            <a class="nav-links" href="charity.html">
+                <h2 class="nav-links-label rubik-font">Charity</h2>
+                <img class="nav-links-image" src="index-images/main-nav/charity.png">
+            </a>
+            <a class="nav-links" href="instagram.html">
+                <h2 class="nav-links-label rubik-font">Shouth Clothin'</h2>
+                <img class="nav-links-image" src="index-images/main-nav/spotify.jpg">
+            </a>
+            <a class="nav-links" href="#">
+                <h2 class="nav-links-label rubik-font" onclick="toggleSubNav()">Brand Products</h2>
+                <img class="nav-links-image" onclick="toggleSubNav()" src="index-images/main-nav/vietnam.jpg">
+            </a>
+            <a class="nav-links" href="contact.html">
+                <h2 class="nav-links-label rubik-font">Contact</h2>
+                <img class="nav-links-image" src="index-images/main-nav/contact.jpg">
+            </a>
+        </div>
+
+        <!-- Sub-navigation-->
+        <div id="sub-nav-links">
+            <a class="sub-nav-links" href="vietnamese.html">
+                <h2 class="sub-nav-links-label rubik-font">Lipstick</h2>
+                <img class="sub-nav-links-image" src="index-images/main-nav/vietnam.jpg">
+            </a>
+            <a class="sub-nav-links" href="vpop.html">
+                <h2 class="sub-nav-links-label rubik-font">Perfume</h2>
+                <img class="sub-nav-links-image" src="index-images/sub-nav/vpop.png">
+            </a>
+            <a class="sub-nav-links" href="rock.html">
+                <h2 class="sub-nav-links-label rubik-font">Body Oil</h2>
+                <img class="sub-nav-links-image" src="index-images/sub-nav/rock.jpg">
+            </a>
+            <a class="sub-nav-links" href="hiphop.html">
+                <h2 class="sub-nav-links-label rubik-font">Mask</h2>
+                <img class="sub-nav-links-image" src="index-images/sub-nav/hiphop.jpg">
+            </a>
+            <a class="sub-nav-links" href="karaoke.html">
+                <h2 class="sub-nav-links-label rubik-font">Foundation</h2>
+                <img class="sub-nav-links-image" src="index-images/sub-nav/karaoke.jpg">
+            </a>
+        </div>        
+    </nav>
+
+    <!-- Navigation button-->
+    <button id="nav-toggle" type="button" onclick="toggleNav()">
+        <a class="open">Home</a>
+        <a class = "close">Exit</a>
+        <a class = "return" onclick="toggleReturn()" >Back</a>
+    </button>
+
+    <!-- This part is the nav container section-->
+  <nav id="nav-container" data-toggled="false" data-transitionable="false">
+
+    <div id="nav-logo-section" class="nav-section">
+      <a href="index.html"> <img src="img/luxeseam_logo.jpg" width = 10% alt=""> <i>LuxeSeam</i> </a>
+    </div>
+
+    <div id="nav-announcement-section">
+      <div id="nav-annlink-section" class="nav-section">
+        <a href="index.html">New Announcement!</a>
+      </div>
+
+    <div id="nav-contact-section" class="nav-section">
+      <a href="charity.html">
+        <i> Charity! </i>
+      </a>     
+      <a href="spotify.html">
+        <i> Shouth Clothin'!</i>
+      </a>
+    </div>
+
+    <div id="nav-menu-section" class="nav-section">
+    </div>
+  </nav>
+
+  <!-- This part is the article section-->
+  <main>
+
+    <article data-index="0" data-status="active"> <!-- 1st article-->
+      <div class="article-image-section article-section"></div>
+      <div class="article-description-section article-section">
+        <p>
+          Founded in 1997, LuxSeam has been a pioneer in the luxury cosmetics industry, setting the benchmark for opulence and innovation. With Lux Museum at the helm as the head designer and Founder, our brand continues to embody the spirit of timeless elegance and unparalleled craftsmanship, redefining the art of beauty.
+        </p>
+      </div>
+      <div class="article-title-section article-section">
+        <h2>The Beginning of LuxSeam</h2>
+        <i> Our Rich Legacy <i id="i1"> 1997 </i> </i>
+      </div>
+      <div class="article-nav-section article-section">
+        <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+          <i><</i>
+        </button>
+        <button class="article-nav-button" type="button" onclick="handleRightClick()">
+          <i>></i>
+        </button>
+      </div>
+    </article>
+
+    <article data-index="1" data-status="inactive"> <!-- 2nd article-->
+      <div class="article-image-section article-section"></div>
+      <div class="article-description-section article-section">
+        <p>
+          A graduate of the Royal College of Art in 1992, Lux Museum embarked on a transformative journey in search of his true passion. It wasn't until he caught a whiff of his girlfriend's alluring perfume that his creative odyssey in the world of luxury cosmetics truly began. This serendipitous encounter served as the catalyst for his unwavering commitment to crafting exceptional fragrances and beauty products that ignite the senses and stir the soul.  
+        </p>
+        </div>
+      <div class="article-title-section article-section">
+          <h2>The Passion Kindled</h2>
+          <i> A Serendipitous Journey <i id="i1"> 1999 </i> </i>
+      </div>
+      <div class="article-nav-section article-section">
+        <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+          <i><</i>
+        </button>
+        <button class="article-nav-button" type="button" onclick="handleRightClick()">
+          <i>></i>
+        </button>
+      </div>
+    </article>
+
+    <article data-index="2" data-status="inactive"> <!-- 3rd article-->    
+      <div class="article-image-section article-section"></div>
+      <div class="article-description-section article-section">
+        <p>
+          The inaugural creation of our first perfume bottle in 2001 marked a pivotal moment for LuxSeam, as Lux Museum embarked on his visionary foray into the world of cosmetics. This momentous step culminated in a monumental contract with Dior in 2003, solidifying LuxSeam's position as a trailblazer in the realm of opulent beauty and fragrance.
+        </p>
+        </div>
+      <div class="article-title-section article-section">
+        <h2>The World of Cosmetics</h2>
+        <i> Pioneering Innovation <i id="i1"> 2001 </i> </i>
+      </div>
+      <div class="article-nav-section article-section">
+        <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+          <i><</i>
+        </button>
+        <button class="article-nav-button" type="button" onclick="handleRightClick()">
+          <i>></i>
+        </button>
+      </div>
+    </article>
+
+    <article data-index="3" data-status="inactive"> <!-- 4th article-->     
+      <div class="article-image-section article-section"></div>
+      <div class="article-description-section article-section">
+        <p>
+          Amidst stiff competition and the inevitable ebbs and flows of the industry, Lux Museum's unwavering dedication led to the creation of an exquisite fragrance that garnered attention even from esteemed patrons such as the Queen of England. In 2005, LuxSeam's products received the prestigious honor of a six-month commission from Her Majesty herself, a testament to our brand's unwavering commitment to crafting unparalleled luxury cosmetics.
+        </p>
+        </div>
+      <div class="article-title-section article-section">
+        <h2>Her Majesty</h2>
+        <i> A Tale of Resilience <i id="i1"> 2006 </i> </i>
+      </div>
+      <div class="article-nav-section article-section">
+        <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+          <i ><</i>
+        </button>
+        <button class="article-nav-button" type="button" onclick="handleRightClick()">
+          <i>></i>
+        </button>
+      </div>
+    </article>
+
+    <article data-index="4" data-status="inactive"> <!-- 5th article-->     
+      <div class="article-image-section article-section"></div>
+      <div class="article-description-section article-section">
+        <p>
+          LuxSeam's international debut in London marked the commencement of an illustrious journey, with a primary focus on meeting the discerning standards of Her Majesty's esteemed patronage. Concurrently, Lux Museum delved into the innovative realm of luxury cosmetics, pioneering the revolutionary 24k gold-plated face mask rejuvenate, a symbol of opulence and accessibility, encapsulating the brand's commitment to merging luxury and affordability seamlessly.
+        </p>
+        </div>
+      <div class="article-title-section article-section">
+        <h2>Affordability</h2>
+        <i> Expansion and Innovation <i id="i1"> 2010 </i> </i>
+      </div>
+      <div class="article-nav-section article-section">
+        <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+          <i><</i>
+        </button>
+        <button class="article-nav-button" type="button" onclick="handleRightClick()">
+          <i>></i>
+        </button>
+      </div>
+    </article>
+
+    <article data-index="5" data-status="inactive"> <!-- 6th article-->     
+      <div class="article-image-section article-section"></div>
+      <div class="article-description-section article-section">
+        <p>
+          While continental branching to Asia initially presented challenges, Lux Museum's renowned fragrances from LuxSeam's perfume line found resounding success in the markets of Japan, Korea, China, and Russia, solidifying our brand's global footprint. Simultaneously, Lux Museum ventured into the realm of fashion, introducing the esteemed clothing store, Shouth Clothin', to cater to the cosmopolitan tastes of discerning clientele worldwide.
+        </p>
+        </div>
+      <div class="article-title-section article-section">
+        <h2>Shouth Clothin'</h2>
+        <i> Navigating New Horizons <i id="i1"> 2017 </i> </i>
+      </div>
+      <div class="article-nav-section article-section">
+        <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+          <i><</i>
+        </button>
+        <button class="article-nav-button" type="button" onclick="handleRightClick()">
+          <i>></i>
+        </button>
+      </div>
+    </article>
+
+    <article data-index="6" data-status="inactive"> <!-- 7th article-->     
+      <div class="article-image-section article-section"></div>
+      <div class="article-description-section article-section">
+        <p>
+          Lux Museum's legacy of excellence was cemented when a remarkable eight LuxSeam products were showcased in The 2020 Allure Best of Beauty Awards, a testament to our unwavering commitment to superior craftsmanship and innovation. This prestigious accolade serves as a testament to LuxSeam's dedication to delivering unparalleled luxury cosmetics that redefine the standards of beauty and sophistication.
+        </p>
+        </div>
+      <div class="article-title-section article-section">
+        <h2>The Beauty Award</h2>
+        <i> Acknowledging Excellence<i id="i1"> 2020 </i> </i>
+      </div>
+      <div class="article-nav-section article-section">
+        <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+          <i><</i>
+        </button>
+        <button class="article-nav-button" type="button" onclick="handleRightClick()">
+          <i>></i>
+        </button>
+      </div>
+    </article>
+
+  </main>
+
+  <script>
+
+    /* Navigation Fucntion */
+    const toggleNav = () => { //Toggle Navigation//
+      document.body.dataset.nav = document.body.dataset.nav === "true" ? "false" : "true";
+    }
+    const toggleSubNav = () => {
+      if (document.body.dataset.nav === "true") {
+        document.body.dataset.nav = "false";
+        document.body.dataset.subnav = "true";
+        }
+    }
+    const toggleReturn = () => {
+        document.body.dataset.subnav = "false";
+    }
+
+
+    /* -- Carousel Navigation -- */
+
+    let activeIndex = 0;
+
+    const slides = document.getElementsByTagName("article");
+
+    const handleLeftClick = () => {
+      const nextIndex = activeIndex - 1 >= 0 ? activeIndex - 1 : slides.length - 1;
+        
+      const currentSlide = document.querySelector(`[data-index="${activeIndex}"]`),
+        nextSlide = document.querySelector(`[data-index="${nextIndex}"]`);
+              
+        currentSlide.dataset.status = "after";
+        
+        nextSlide.dataset.status = "becoming-active-from-before";
+        
+        setTimeout(() => {
+          nextSlide.dataset.status = "active";
+          activeIndex = nextIndex;
+        });
+    }
+
+    const handleRightClick = () => {
+      const nextIndex = activeIndex + 1 <= slides.length - 1 ? activeIndex + 1 : 0;
+        
+      const currentSlide = document.querySelector(`[data-index="${activeIndex}"]`),
+        nextSlide = document.querySelector(`[data-index="${nextIndex}"]`);
+        
+        currentSlide.dataset.status = "before";
+        
+        nextSlide.dataset.status = "becoming-active-from-after";
+        
+        setTimeout(() => {
+          nextSlide.dataset.status = "active";
+          activeIndex = nextIndex;
+        });
+    }
+
+  </script>
+</body>
+</html>
